@@ -22,11 +22,6 @@ class CnInTask : GraphTask<CnInTask.Result> {
         val graph = Graph(graph6)
         val cliqueNumber = Clique(graph).cliqueNumber()
         val independenceNumber = Clique(graph.inversed()).cliqueNumber()
-        if (cliqueNumber == 2 && independenceNumber == graph.n - 1 ||
-            independenceNumber == 2 && cliqueNumber == graph.n - 1
-        ) {
-            GraphDrawer(graph).drawImage()
-        }
         return Result(cliqueNumber, independenceNumber)
     }
 }
