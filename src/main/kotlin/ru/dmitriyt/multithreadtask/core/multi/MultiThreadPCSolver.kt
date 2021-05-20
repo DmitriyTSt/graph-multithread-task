@@ -1,11 +1,11 @@
 package ru.dmitriyt.multithreadtask.core.multi
 
 import ru.dmitriyt.multithreadtask.core.*
-import java.util.concurrent.atomic.AtomicIntegerArray
+import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 
-class MultiThreadPCSolver(private val graphTask: GraphTask<TaskResult>) : Solver {
-    private val ans = Array(Graph.MAX_N) { AtomicIntegerArray(Graph.MAX_N) }
+class MultiThreadPCSolver(private val graphTask: GraphTask<TaskResult>) : AbstractMultiSolver() {
     private val pc = ProducerConsumer()
 
     override fun run(): SolverResult {
@@ -28,28 +28,40 @@ class MultiThreadPCSolver(private val graphTask: GraphTask<TaskResult>) : Solver
             }
         }
 
-        var total = 0
         var graph6: String? = readLine()
         while (graph6 != null) {
-            total++
+            total.getAndIncrement()
             pc.produce(graph6)
             graph6 = readLine()
         }
         threads.map { it.join() }
-        val result = mutableListOf<MutableList<Int>>()
-        ans.forEach { atomicArray ->
-            val resultRow = mutableListOf<Int>()
-            repeat(Graph.MAX_N) {
-                resultRow.add(atomicArray[it])
-            }
-            result.add(resultRow)
-        }
-        return SolverResult(total, result)
+        return getSolverResult()
     }
 
-    private fun addResult(result: TaskResult) {
-        ans[result.firstDimension].incrementAndGet(result.secondDimension)
-        ans[result.firstDimension].incrementAndGet(Graph.MAX_N - 1)
-        ans[Graph.MAX_N - 1].incrementAndGet(result.secondDimension)
+    class ProducerConsumer(private val capacity: Int = 1000) {
+        private val buffer = LinkedList<String>()
+        private var bufferSize = AtomicInteger(0)
+
+        fun produce(graph6: String) {
+            while (bufferSize.get() == capacity) {
+                Thread.sleep(10)
+            }
+            synchronized(this) {
+                buffer.add(graph6)
+                bufferSize.getAndIncrement()
+            }
+        }
+
+        fun consume(): String? {
+            synchronized(this) {
+                return try {
+                    val graph6 = buffer.removeFirst()
+                    bufferSize.getAndDecrement()
+                    graph6
+                } catch (e: Exception) {
+                    null
+                }
+            }
+        }
     }
 }
