@@ -4,14 +4,16 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.FlowableOnSubscribe
 import io.reactivex.schedulers.Schedulers
-import ru.dmitriyt.multithreadtask.core.*
+import ru.dmitriyt.multithreadtask.core.data.GraphTask
+import ru.dmitriyt.multithreadtask.core.data.SolverResult
+import ru.dmitriyt.multithreadtask.core.data.TaskResult
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
 class MultiRxSolver(private val task: GraphTask<TaskResult>) : AbstractMultiSolver() {
     private val batch = AtomicInteger(0)
 
-    override fun run(): SolverResult {
+    override fun run(inputProvider: () -> String?): SolverResult {
         val threadCnt = Runtime.getRuntime().availableProcessors() + 1
         val executor = Executors.newFixedThreadPool(threadCnt)
         val scheduler = Schedulers.from(executor)

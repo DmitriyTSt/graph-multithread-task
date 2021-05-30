@@ -1,4 +1,4 @@
-package ru.dmitriyt.multithreadtask.core
+package ru.dmitriyt.multithreadtask.core.data
 
 import java.awt.*
 import java.awt.image.BufferedImage

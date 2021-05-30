@@ -1,9 +1,9 @@
 package ru.dmitriyt.multithreadtask.core.multi
 
-import ru.dmitriyt.multithreadtask.core.Graph
-import ru.dmitriyt.multithreadtask.core.Solver
-import ru.dmitriyt.multithreadtask.core.SolverResult
-import ru.dmitriyt.multithreadtask.core.TaskResult
+import ru.dmitriyt.multithreadtask.core.data.Graph
+import ru.dmitriyt.multithreadtask.core.data.Solver
+import ru.dmitriyt.multithreadtask.core.data.SolverResult
+import ru.dmitriyt.multithreadtask.core.data.TaskResult
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicIntegerArray
 

@@ -1,11 +1,11 @@
 package ru.dmitriyt.multithreadtask.core.single
 
-import ru.dmitriyt.multithreadtask.core.*
+import ru.dmitriyt.multithreadtask.core.data.*
 
 class SingleSolver(private val graphTask: GraphTask<TaskResult>) : Solver {
     private val ans = Array(Graph.MAX_N) { Array(Graph.MAX_N) { 0 } }
 
-    override fun run(): SolverResult {
+    override fun run(inputProvider: () -> String?): SolverResult {
         var total = 0
         var graph6: String? = readLine()
         while (graph6 != null) {

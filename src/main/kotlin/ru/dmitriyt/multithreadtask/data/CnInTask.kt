@@ -1,9 +1,8 @@
 package ru.dmitriyt.multithreadtask.data
 
-import ru.dmitriyt.multithreadtask.core.Graph
-import ru.dmitriyt.multithreadtask.core.GraphDrawer
-import ru.dmitriyt.multithreadtask.core.GraphTask
-import ru.dmitriyt.multithreadtask.core.TaskResult
+import ru.dmitriyt.multithreadtask.core.data.Graph
+import ru.dmitriyt.multithreadtask.core.data.GraphTask
+import ru.dmitriyt.multithreadtask.core.data.TaskResult
 
 /**
  * Задание вычисления кликового числа и числа независимости

@@ -1,6 +1,6 @@
 package ru.dmitriyt.multithreadtask.data
 
-import ru.dmitriyt.multithreadtask.core.Graph
+import ru.dmitriyt.multithreadtask.core.data.Graph
 import kotlin.math.max
 
 class Clique(

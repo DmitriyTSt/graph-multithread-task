@@ -1,6 +1,8 @@
 package ru.dmitriyt.multithreadtask.core.multi
 
-import ru.dmitriyt.multithreadtask.core.*
+import ru.dmitriyt.multithreadtask.core.data.GraphTask
+import ru.dmitriyt.multithreadtask.core.data.SolverResult
+import ru.dmitriyt.multithreadtask.core.data.TaskResult
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
@@ -8,7 +10,7 @@ import kotlin.concurrent.thread
 class MultiThreadPCSolver(private val graphTask: GraphTask<TaskResult>) : AbstractMultiSolver() {
     private val pc = ProducerConsumer()
 
-    override fun run(): SolverResult {
+    override fun run(inputProvider: () -> String?): SolverResult {
         val nCpu = Runtime.getRuntime().availableProcessors()
         val threads = IntRange(0, nCpu - 1).map {
             thread {

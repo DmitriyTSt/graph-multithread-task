@@ -1,4 +1,4 @@
-package ru.dmitriyt.multithreadtask.core
+package ru.dmitriyt.multithreadtask.core.data
 
 class Graph(
     code: String
