@@ -7,12 +7,12 @@ class SingleSolver(private val graphTask: GraphTask<TaskResult>) : Solver {
 
     override fun run(inputProvider: () -> String?): SolverResult {
         var total = 0
-        var graph6: String? = readLine()
+        var graph6: String? = inputProvider()
         while (graph6 != null) {
             total++
             val result = graphTask.solve(graph6)
             addResult(result)
-            graph6 = readLine()
+            graph6 = inputProvider()
         }
         return SolverResult(total, ans.map { it.toList() })
     }

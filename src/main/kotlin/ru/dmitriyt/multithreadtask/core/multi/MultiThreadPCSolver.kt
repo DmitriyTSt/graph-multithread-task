@@ -30,11 +30,11 @@ class MultiThreadPCSolver(private val graphTask: GraphTask<TaskResult>) : Abstra
             }
         }
 
-        var graph6: String? = readLine()
+        var graph6: String? = inputProvider()
         while (graph6 != null) {
             total.getAndIncrement()
             pc.produce(graph6)
-            graph6 = readLine()
+            graph6 = inputProvider()
         }
         threads.map { it.join() }
         return getSolverResult()

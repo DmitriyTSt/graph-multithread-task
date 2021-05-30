@@ -11,7 +11,7 @@ class ArgsManager(_args: Array<String>) {
         else -> RunMode.STANDALONE
     }
 
-    val serverAddress = getParam("--server")
+    val serverAddress = getParam("--server") ?: "localhost"
     val port = getParam("--port")?.toIntOrNull() ?: 9999
 
     enum class RunMode {

@@ -19,11 +19,11 @@ class MultiRxSolver(private val task: GraphTask<TaskResult>) : AbstractMultiSolv
         val scheduler = Schedulers.from(executor)
 
         val source = Flowable.create(FlowableOnSubscribe<String> { emitter ->
-            var graph6: String? = readLine()
+            var graph6: String? = inputProvider()
             while (graph6 != null) {
                 total.getAndIncrement()
                 emitter.onNext(graph6)
-                graph6 = readLine()
+                graph6 = inputProvider()
             }
             emitter.onComplete()
         }, BackpressureStrategy.BUFFER)

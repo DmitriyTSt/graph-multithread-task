@@ -1,0 +1,27 @@
+syntax = "proto3";
+package ru.dmitriyt.multithreadtask;
+option java_outer_classname = "GraphTaskProto";
+option java_package = "ru.dmitriyt.multithreadtask";
+
+service GraphTask {
+  // Получить пачку графов на выполнение
+  rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
+  // Отослать результаты выполнения
+  rpc SendTaskResult(SendTaskResultRequest) returns (SendTaskResultResponse);
+}
+
+message GetTaskRequest {}
+message GetTaskResponse {
+  bool lastPart = 1;
+  repeated string graphs = 2;
+}
+
+message SendTaskResultRequest {
+  bool lastPart = 1;
+  repeated TaskRow resultRows = 2;
+  int32 total = 3;
+}
+message TaskRow {
+  repeated int32 count = 1;
+}
+message SendTaskResultResponse {}

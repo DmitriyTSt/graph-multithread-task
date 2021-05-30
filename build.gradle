@@ -1,6 +1,18 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.16'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10"
+    }
+}
+
 plugins {
     id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.4.10'
+    id 'org.jetbrains.kotlin.jvm' version '1.5.0'
+    id "com.google.protobuf" version "0.8.16"
+    id 'idea'
 }
 
 group 'ru.dmitriyt'
@@ -8,6 +20,14 @@ version '1.0'
 
 repositories {
     mavenCentral()
+}
+
+sourceSets {
+    main {
+        proto {
+            srcDir 'src/main/proto'
+        }
+    }
 }
 
 jar {
@@ -20,8 +40,55 @@ jar {
     from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 
+protobuf {
+
+    def grpcVersion = "1.30.0"
+    def grpcKotlinVersion = "0.1.5" // CURRENT_GRPC_KOTLIN_VERSION
+    def protobufVersion = "3.12.2"
+
+    protoc {
+        artifact = "com.google.protobuf:protoc:$protobufVersion"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:$grpcVersion"
+        }
+        grpckt {
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:$grpcKotlinVersion"
+        }
+    }
+    generateProtoTasks {
+        all().each {
+            it.builtins {
+                remove javanano
+                java {
+                    // option 'lite'
+                }
+            }
+            it.plugins {
+                grpc {
+                    // option 'lite'
+                }
+                grpckt {
+                    // option 'lite'
+                }
+            }
+        }
+    }
+}
+
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
     implementation "io.reactivex.rxjava2:rxjava:2.2.21"
     testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    // grpc
+    def grpcVersion = "1.35.0"
+    def grpcKotlinVersion = "0.1.5" // CURRENT_GRPC_KOTLIN_VERSION
+    api "io.grpc:grpc-protobuf:$grpcVersion"
+    api "io.grpc:grpc-stub:$grpcVersion"
+    def withoutGrpcProtobuf = { exclude group: 'io.grpc', module: 'grpc-protobuf' }
+    api "io.grpc:grpc-kotlin-stub:$grpcKotlinVersion", withoutGrpcProtobuf
+    api "io.grpc:grpc-netty:$grpcVersion"
+    implementation "io.perfmark:perfmark-api:0.24.0"
 }
