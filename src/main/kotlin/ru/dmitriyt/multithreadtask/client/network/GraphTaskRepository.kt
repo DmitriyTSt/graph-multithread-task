@@ -16,21 +16,25 @@ class GraphTaskRepository(server: String, port: Int) : Closeable {
     }
 
     fun sendResult(result: SolverResult) {
-        stub.sendTaskResult(
-            GraphTaskProto.SendTaskResultRequest.newBuilder()
-                .addAllResultRows(
-                    result.ans.map {
-                        GraphTaskProto.TaskRow.newBuilder()
-                            .addAllCount(it)
-                            .build()
-                    }
-                )
-                .setTotal(result.total)
-                .build()
-        )
+        try {
+            stub.sendTaskResult(
+                GraphTaskProto.SendTaskResultRequest.newBuilder()
+                    .addAllResultRows(
+                        result.ans.map {
+                            GraphTaskProto.TaskRow.newBuilder()
+                                .addAllCount(it)
+                                .build()
+                        }
+                    )
+                    .setTotal(result.total)
+                    .build()
+            )
+        } catch (e: Exception) {
+
+        }
     }
 
     override fun close() {
-        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS)
+        channel.shutdown()
     }
 }
