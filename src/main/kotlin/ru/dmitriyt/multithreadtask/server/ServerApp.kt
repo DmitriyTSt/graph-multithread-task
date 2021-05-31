@@ -17,7 +17,6 @@ class ServerApp(private val argsManager: ArgsManager) {
     private var total = AtomicInteger(0)
     private var startTime = 0L
     private var endTime = 0L
-    private var tasks = AtomicInteger(0)
     private var processedGraphs = AtomicInteger(0)
     private var resultHandled = false
     private val resultMutex = Mutex()
@@ -39,7 +38,7 @@ class ServerApp(private val argsManager: ArgsManager) {
     }
 
     private fun handleStart(partSize: Int) {
-        tasks.getAndIncrement()
+        println("Send task")
         if (startTime == 0L) {
             startTime = System.currentTimeMillis()
         }
@@ -47,7 +46,6 @@ class ServerApp(private val argsManager: ArgsManager) {
     }
 
     private suspend fun handleResult(counts: List<List<Int>>, total: Int) {
-        tasks.getAndDecrement()
         processedGraphs.getAndAdd(total)
         counts.forEachIndexed { rowIndex, row ->
             row.forEachIndexed { columnIndex, count ->

@@ -12,12 +12,12 @@ service GraphTask {
 
 message GetTaskRequest {}
 message GetTaskResponse {
-  bool lastPart = 1;
+  int32 taskId = 1;
   repeated string graphs = 2;
 }
 
 message SendTaskResultRequest {
-  bool lastPart = 1;
+  int32 taskId = 1;
   repeated TaskRow resultRows = 2;
   int32 total = 3;
 }
