@@ -13,6 +13,7 @@ class ArgsManager(_args: Array<String>) {
 
     val serverAddress = getParam("--server") ?: "localhost"
     val port = getParam("--port")?.toIntOrNull() ?: 9999
+    val partSize = getParam("-p")?.toIntOrNull() ?: 1000
 
     enum class RunMode {
         STANDALONE,

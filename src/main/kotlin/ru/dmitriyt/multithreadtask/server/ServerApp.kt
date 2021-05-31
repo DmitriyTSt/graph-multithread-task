@@ -20,10 +20,11 @@ class ServerApp(private val argsManager: ArgsManager) {
     private var processedGraphs = AtomicInteger(0)
     private var resultHandled = false
     private val resultMutex = Mutex()
+    private var isCompleted = false
 
     private val server = ServerBuilder
         .forPort(argsManager.port)
-        .addService(GraphTaskService(1000, ::handleStart, ::handleResult))
+        .addService(GraphTaskService(argsManager.partSize, ::handleStart, ::handleResult) { isCompleted = true })
         .build()
 
     fun start() {
@@ -38,21 +39,21 @@ class ServerApp(private val argsManager: ArgsManager) {
     }
 
     private fun handleStart(partSize: Int) {
-        println("Send task")
         if (startTime == 0L) {
             startTime = System.currentTimeMillis()
         }
         total.getAndAdd(partSize)
     }
 
-    private suspend fun handleResult(counts: List<List<Int>>, total: Int) {
+    private suspend fun handleResult(counts: List<List<Int>>, total: Int, tasksInProgress: Int) {
         processedGraphs.getAndAdd(total)
         counts.forEachIndexed { rowIndex, row ->
             row.forEachIndexed { columnIndex, count ->
                 ans[rowIndex].getAndAdd(columnIndex, count)
             }
         }
-        if (this.total.get() == processedGraphs.get()) {
+//        println("total = ${this.total.get()}, processed = ${processedGraphs.get()}, inprogress = $tasksInProgress, isComplete = $isCompleted")
+        if (this.total.get() == processedGraphs.get() && tasksInProgress == 0 && isCompleted) {
             resultMutex.withLock {
                 if (!resultHandled) {
                     resultHandled = true

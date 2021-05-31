@@ -8,7 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger
 class GraphTaskService(
     private val partSize: Int = 1000,
     private val startHandler: (Int) -> Unit,
-    private val resultHandler: suspend (List<List<Int>>, total: Int) -> Unit
+    private val resultHandler: suspend (List<List<Int>>, total: Int, taskInProgress: Int) -> Unit,
+    private val onGraphEmpty: () -> Unit,
 ) : GraphTaskGrpcKt.GraphTaskCoroutineImplBase() {
     private val taskId = AtomicInteger(0)
     private val tasks = LinkedList<GraphTaskProto.GetTaskResponse>()
@@ -23,10 +24,16 @@ class GraphTaskService(
             }
         }
         return if (graphs.isEmpty()) {
-            tasks.firstOrNull() ?: GraphTaskProto.GetTaskResponse.newBuilder()
-                .addAllGraphs(emptyList())
-                .build()
+            tasks.firstOrNull() ?: run {
+                onGraphEmpty()
+                GraphTaskProto.GetTaskResponse.newBuilder()
+                    .addAllGraphs(emptyList())
+                    .build()
+            }
         } else {
+            if (graphs.size != partSize) {
+                onGraphEmpty()
+            }
             startHandler(graphs.size)
             val localTaskId = taskId.getAndIncrement()
             val response = GraphTaskProto.GetTaskResponse.newBuilder()
@@ -34,6 +41,7 @@ class GraphTaskService(
                 .addAllGraphs(graphs)
                 .build()
             tasks.add(response)
+//            println("send task $localTaskId")
             response
         }
     }
@@ -42,8 +50,11 @@ class GraphTaskService(
         request: GraphTaskProto.SendTaskResultRequest
     ): GraphTaskProto.SendTaskResultResponse {
         val taskId = request.taskId
-        tasks.find { it.taskId == taskId }?.let { tasks.remove(it) }
-        resultHandler(request.resultRowsList.map { it.countList }, request.total)
+        tasks.find { it.taskId == taskId }?.let {
+            tasks.remove(it)
+//            println("receive task $taskId with total = ${request.total}")
+            resultHandler(request.resultRowsList.map { it.countList }, request.total, tasks.size)
+        }
         return GraphTaskProto.SendTaskResultResponse.newBuilder().build()
     }
 }
