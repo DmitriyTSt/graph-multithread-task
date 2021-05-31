@@ -8,6 +8,10 @@ import ru.dmitriyt.multithreadtask.data.CnInTask
 import kotlin.system.exitProcess
 
 class StandaloneApp(private val argsManager: ArgsManager) {
+    companion object {
+        private const val PART_SIZE = 1000
+    }
+
     fun start() {
         val solver = if (argsManager.isMulti) {
             MultiThreadSolver(CnInTask())
@@ -16,7 +20,15 @@ class StandaloneApp(private val argsManager: ArgsManager) {
         }
 
         val startTime = System.currentTimeMillis()
-        val result = solver.run { readLine() }
+        val result = solver.run {
+            val graphs = mutableListOf<String>()
+            repeat(PART_SIZE) {
+                readLine()?.let { graphs.add(it) } ?: run {
+                    return@repeat
+                }
+            }
+            graphs
+        }
         val endTime = System.currentTimeMillis()
 
         println("Total: ${result.total}")

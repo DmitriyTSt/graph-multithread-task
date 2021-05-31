@@ -10,7 +10,7 @@ import kotlin.concurrent.thread
 class MultiThreadPCSolver(private val graphTask: GraphTask<TaskResult>) : AbstractMultiSolver() {
     private val pc = ProducerConsumer()
 
-    override fun run(inputProvider: () -> String?): SolverResult {
+    override fun run(inputProvider: () -> List<String>): SolverResult {
         val nCpu = Runtime.getRuntime().availableProcessors()
         val threads = IntRange(0, nCpu - 1).map {
             thread {
@@ -30,11 +30,13 @@ class MultiThreadPCSolver(private val graphTask: GraphTask<TaskResult>) : Abstra
             }
         }
 
-        var graph6: String? = inputProvider()
-        while (graph6 != null) {
-            total.getAndIncrement()
-            pc.produce(graph6)
-            graph6 = inputProvider()
+        var graph6List = inputProvider()
+        while (graph6List.isNotEmpty()) {
+            total.getAndAdd(graph6List.size)
+            graph6List.forEach { graph6 ->
+                pc.produce(graph6)
+            }
+            graph6List = inputProvider()
         }
         threads.map { it.join() }
         return getSolverResult()

@@ -21,15 +21,7 @@ class ClientApp(private val argsManager: ArgsManager) {
         }
 
         val result = solver.run {
-            if (graphs.isEmpty()) {
-                graphs.addAll(repository.getTask())
-            }
-            if (graphs.isEmpty()) {
-                println("Empty tasks. Shutdown.")
-                null
-            } else {
-                graphs.pop()
-            }
+            repository.getTask()
         }
 
         repository.sendResult(result)

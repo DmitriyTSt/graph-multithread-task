@@ -13,17 +13,19 @@ import java.util.concurrent.atomic.AtomicInteger
 class MultiRxSolver(private val task: GraphTask<TaskResult>) : AbstractMultiSolver() {
     private val batch = AtomicInteger(0)
 
-    override fun run(inputProvider: () -> String?): SolverResult {
+    override fun run(inputProvider: () -> List<String>): SolverResult {
         val threadCnt = Runtime.getRuntime().availableProcessors() + 1
         val executor = Executors.newFixedThreadPool(threadCnt)
         val scheduler = Schedulers.from(executor)
 
         val source = Flowable.create(FlowableOnSubscribe<String> { emitter ->
-            var graph6: String? = inputProvider()
-            while (graph6 != null) {
-                total.getAndIncrement()
-                emitter.onNext(graph6)
-                graph6 = inputProvider()
+            var graph6List = inputProvider()
+            while (graph6List.isNotEmpty()) {
+                total.getAndAdd(graph6List.size)
+                graph6List.forEach { graph6 ->
+                    emitter.onNext(graph6)
+                }
+                graph6List = inputProvider()
             }
             emitter.onComplete()
         }, BackpressureStrategy.BUFFER)
