@@ -41,7 +41,6 @@ class GraphTaskService(
                 .addAllGraphs(graphs)
                 .build()
             tasks.add(response)
-//            println("send task $localTaskId")
             response
         }
     }

@@ -10,13 +10,13 @@ import ru.dmitriyt.multithreadtask.core.single.SingleClientSolver
 import ru.dmitriyt.multithreadtask.core.single.SingleSolver
 import ru.dmitriyt.multithreadtask.data.CnInTask
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.exitProcess
 
 class ClientApp(private val argsManager: ArgsManager) {
 	private val repository = GraphTaskRepository(argsManager.serverAddress, argsManager.port)
-
-	var graphs = LinkedList<String>()
-	var successSent = ThreadLocal<Boolean>()
+	private val completedTaskCount = AtomicInteger(0)
+	private val lock = Any()
 
 	fun start() {
 		println("Client onStart")
@@ -27,32 +27,34 @@ class ClientApp(private val argsManager: ArgsManager) {
 		}
 
 		solver.run({
-			try {
-				repository.getTask()
-			} catch (e: Exception) {
-				0 to emptyList()
+			synchronized(lock) {
+				try {
+					repository.getTask()
+				} catch (e: Exception) {
+					0 to emptyList()
+				}
 			}
-
 		}, { taskId, result ->
-			successSent.set(false)
-			while (!successSent.get()) {
+			synchronized(lock) {
 				try {
 					repository.sendResult(taskId, result)
-					successSent.set(true)
-				} catch (e: StatusRuntimeException) {
-					if (e.status.code == Status.UNAVAILABLE.code) {
-						successSent.set(true)
+					completedTaskCount.getAndIncrement()
+				} catch (e: Exception) {
+					if (e is StatusRuntimeException && e.status.code == Status.Code.UNAVAILABLE) {
+						repository.close()
+						println("client on close")
+						println("Solved tasks count : ${completedTaskCount.get()}")
 						exitProcess(0)
 					} else {
-						println("Error send task $taskId ${e.status.code.name}")
+						println("error send task $taskId")
+						e.printStackTrace()
 					}
-				} catch (e: Exception) {
-					println("Error send task $taskId ${e.message}")
 				}
 			}
 		})
 
 		repository.close()
 		println("client on close")
+		println("Solved tasks count : ${completedTaskCount.get()}")
 	}
 }
